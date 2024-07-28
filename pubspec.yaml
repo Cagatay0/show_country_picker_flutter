@@ -1,7 +1,7 @@
 name: show_country_picker_flutter
-description: "A new Flutter package project."
-version: 0.0.1
-homepage:
+description: "show_country_picker_flutter is a customizable Flutter package that provides an easy-to-use country code picker. It enables users to select countries and their respective codes from a predefined list, perfect for integrating into profile creation, registration forms, and more. With smooth animations and a user-friendly interface, this package enhances the user experience by providing a seamless way to choose country codes."
+version: 1.0.0
+homepage: https://github.com/Cagatay0/show_country_picker_flutter
 
 environment:
   sdk: ">=3.2.3 <4.0.0"
