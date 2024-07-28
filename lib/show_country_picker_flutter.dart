@@ -2,19 +2,32 @@ library show_country_picker_flutter;
 
 import 'package:flutter/material.dart';
 import 'package:show_country_picker_flutter/country_operation.dart';
+import 'package:show_country_picker_flutter/text_field_widget.dart';
 
-class CountryListWidget extends StatefulWidget {
-  const CountryListWidget({super.key});
+class ShowCountryPickerFlutter extends StatefulWidget {
+  const ShowCountryPickerFlutter(
+      {super.key,
+      required this.textEditingController,
+      required this.focusNode,
+      required this.onTap,
+      this.isDisplayDialCode = false});
+  final TextEditingController textEditingController;
+  final FocusNode focusNode;
+  final Function onTap;
+
+  final bool isDisplayDialCode;
 
   @override
-  State<CountryListWidget> createState() => _CountryListWidgetState();
+  State<ShowCountryPickerFlutter> createState() =>
+      _ShowCountryPickerFlutterState();
 }
 
-class _CountryListWidgetState extends State<CountryListWidget> {
-  CountryOperation _countryOperation = CountryOperation();
+class _ShowCountryPickerFlutterState extends State<ShowCountryPickerFlutter> {
   @override
   void initState() {
-    _countryOperation.getCountryList();
+    widget.textEditingController.text = "";
+
+    getCountryList();
     super.initState();
   }
 
@@ -22,16 +35,18 @@ class _CountryListWidgetState extends State<CountryListWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // const ContactAndCountryFilterTextFieldWidget(
-        //   isContactTextField: true,
-        //   isCountryViewTextField: true,
-        // ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
+        TextFieldWidget(
+          textEditingController: widget.textEditingController,
+          focusNode: widget.focusNode,
+          onChanged: (value) => onChangeTextFieldFilter(value),
+        ),
+        const SizedBox(height: 10),
         Expanded(
           child: ListView.builder(
+            padding: const EdgeInsets.all(0),
             shrinkWrap: true,
-            // itemCount: phoneNumberController.filterCountryList.length,
-            itemCount: 1,
+            itemCount: filterCountryList.length,
             itemBuilder: (context, index) {
               return itemWidget(index);
             },
@@ -43,37 +58,39 @@ class _CountryListWidgetState extends State<CountryListWidget> {
 
   Widget itemWidget(int index) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GestureDetector(
-            // onTap: () => phoneNumberController.selectedCountry(index),
+            onTap: () => widget.onTap(filterCountryList[index]),
             child: Container(
               color: Colors.transparent,
               child: Row(
                 children: [
-                  // Hero(
-                  //   tag: phoneNumberController.filterCountryList[index].flag,
-                  //   child: richTextWidget(
-                  //       phoneNumberController.filterCountryList[index].flag,
-                  //       Theme.of(context).textTheme.displayMedium!),
-                  // ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 50,
-                    child: richTextWidget(
-                        "phoneNumberController.filterCountryList[index].diallingCode",
-                        Theme.of(context).textTheme.headlineSmall!),
+                  richTextWidget(
+                    filterCountryList[index]["flag"],
+                    textStyle(true),
                   ),
+                  const SizedBox(width: 10),
+                  widget.isDisplayDialCode
+                      ? SizedBox(
+                          width: 40,
+                          child: richTextWidget(
+                            filterCountryList[index]["dialling_code"],
+                            textStyle(false),
+                          ),
+                        )
+                      : const SizedBox(),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Container(
                       alignment: Alignment.centerLeft,
-                      height: 70,
+                      height: 50,
                       child: richTextWidget(
-                          "phoneNumberController.filterCountryList[index].name",
-                          Theme.of(context).textTheme.headlineSmall!),
+                        filterCountryList[index]["name"],
+                        textStyle(false),
+                      ),
                     ),
                   ),
                 ],
@@ -96,5 +113,24 @@ class _CountryListWidgetState extends State<CountryListWidget> {
         style: style,
       ),
     );
+  }
+
+  TextStyle textStyle(bool isFlag) {
+    return TextStyle(
+      fontSize: isFlag ? 24 : 17,
+      color: Colors.black,
+    );
+  }
+
+  onChangeTextFieldFilter(String value) {
+    String inputText = value.toLowerCase().replaceAll(' ', '');
+    filterCountryList.clear();
+    for (var element in countryList) {
+      String name = element["name"].toLowerCase().replaceAll(' ', '');
+      if (name.contains(inputText)) {
+        filterCountryList.addAll([element]);
+      }
+    }
+    setState(() {});
   }
 }
